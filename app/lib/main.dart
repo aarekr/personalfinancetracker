@@ -8,6 +8,7 @@ void main() {
     initialRoute: "/",
     getPages: [
       GetPage(name: "/", page: () => HomeScreen()),
+      GetPage(name: "/entry", page: () => EntryScreen()),
       GetPage(name: "/summary", page: () => SummaryScreen()),
     ]
   ));
@@ -31,8 +32,56 @@ class HomeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               OutlinedButton(
+                child: Text("Entry"),
+                onPressed: ()  => Get.to(() => EntryScreen()),
+              ),
+              OutlinedButton(
                 child: Text("Summary"),
                 onPressed: ()  => Get.to(() => SummaryScreen()),
+              ),
+            ]
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class EntryScreen extends StatelessWidget {
+  static final _formKey = GlobalKey<FormBuilderState>();
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Center(child: Text("Personal Finance Tracker")),
+        ),
+        body: Column(
+          children: [
+            FormBuilderTextField(
+              name: 'expense',
+              decoration: InputDecoration(
+                hintText: 'expense',
+                border: OutlineInputBorder(),
+              ),
+              autovalidateMode: AutovalidateMode.always,
+              validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
+            ),
+            ElevatedButton(
+              onPressed: null,
+              child: Text("Save"),
+            ),
+          ],
+        ),
+        bottomNavigationBar: Container(
+          height: 50,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              OutlinedButton(
+                child: Text("Home"),
+                onPressed: ()  => Get.to(() => HomeScreen()),
               ),
             ]
           ),
