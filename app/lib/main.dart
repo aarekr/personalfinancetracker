@@ -49,6 +49,15 @@ class HomeScreen extends StatelessWidget {
 
 class EntryScreen extends StatelessWidget {
   static final _formKey = GlobalKey<FormBuilderState>();
+
+  _submit() {
+    _formKey.currentState?.saveAndValidate();
+  }
+
+  _clear() {
+    _formKey.currentState?.reset();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -59,6 +68,7 @@ class EntryScreen extends StatelessWidget {
         ),
         body: Column(
           children: [
+            Text("Enter expense below"),
             FormBuilderTextField(
               name: 'expense',
               decoration: InputDecoration(
@@ -68,10 +78,16 @@ class EntryScreen extends StatelessWidget {
               autovalidateMode: AutovalidateMode.always,
               validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
             ),
-            ElevatedButton(
-              onPressed: null,
-              child: Text("Save"),
-            ),
+            Row(children: [
+              ElevatedButton(
+                onPressed: _submit,
+                child: Text("Save"),
+              ),
+              ElevatedButton(
+                onPressed: _clear,
+                child: Text("Reset"),
+              ),
+            ]),
           ],
         ),
         bottomNavigationBar: Container(
