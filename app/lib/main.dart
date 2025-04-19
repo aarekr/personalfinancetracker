@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive/hive.dart';
 
-void main() {
+Future<void> main() async {
+  await Hive.initFlutter();
+  await Hive.openBox("storage");
   Get.lazyPut<ExpenseController>(() => ExpenseController());
   runApp(GetMaterialApp(
     initialRoute: "/",
@@ -16,13 +20,19 @@ void main() {
 }
 
 class ExpenseController {
-  final expenses = <String>[].obs;
+  final storage = Hive.box("storage");
+  RxList expenseList;
+
+  ExpenseController() : expenseList = [].obs {
+    expenseList.value = storage.get('expenseList') ?? [];
+  }
   
-  void add(String expense) {
-    print("add expense function");
-    expenses.add(expense);
-    print("adding expense: ${expense}");
-    print("all expenses now: ${expenses}");
+  void add(String expense, String category) {
+    var newExpense = {'expense': expense, 'category': category};
+    print("new expense: ${newExpense}");
+    expenseList.add(newExpense);
+    storage.put('expenseList', expenseList);
+    Get.to(() => HomeScreen());
   }
 }
 
@@ -65,14 +75,11 @@ class EntryScreen extends StatelessWidget {
 
   _submit() {
     if (_formKey.currentState!.saveAndValidate()) {
-      expenseController.add(_formKey.currentState?.value["expense"]);
-      //_formKey.currentState?.reset();  // _clear();
+      expenseController.add(_formKey.currentState?.value["expense"],
+                            _formKey.currentState?.value["category"],);
+      _formKey.currentState?.reset();
     }
   }
-
-  /*_clear() {
-    _formKey.currentState?.reset();
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -85,33 +92,36 @@ class EntryScreen extends StatelessWidget {
         body: Column(
           children: [
             Text("Enter expense below"),
-            FormBuilderTextField(
-              name: 'expense',
-              decoration: InputDecoration(
-                hintText: 'expense',
-                border: OutlineInputBorder(),
+            FormBuilder(
+              key: _formKey,
+              child: Column(
+                children: [
+                  FormBuilderTextField(
+                    name: 'expense',
+                    decoration: InputDecoration(
+                      hintText: 'expense',
+                      border: OutlineInputBorder(),
+                    ),
+                    autovalidateMode: AutovalidateMode.always,
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
+                  ),
+                  FormBuilderRadioGroup(
+                    decoration: InputDecoration(labelText: 'Spending category'),
+                    name: 'category',
+                    validator: FormBuilderValidators.required(),
+                    options: ['Food', 'Drink', 'Clothes', 'Eating out']
+                      .map((item) => FormBuilderFieldOption(value: item))
+                      .toList(growable: false),
+                  ),
+                  Row(children: [
+                    ElevatedButton(
+                      onPressed: _submit,
+                      child: Text("Save"),
+                    ),
+                  ]),
+                ]
               ),
-              autovalidateMode: AutovalidateMode.always,
-              validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
             ),
-            FormBuilderRadioGroup(
-              decoration: InputDecoration(labelText: 'Spending category'),
-              name: 'category',
-              validator: FormBuilderValidators.required(),
-              options: ['Food', 'Drink', 'Clothes', 'Eating out']
-                .map((item) => FormBuilderFieldOption(value: item))
-                .toList(growable: false),
-            ),
-            Row(children: [
-              ElevatedButton(
-                onPressed: _submit,
-                child: Text("Save"),
-              ),
-              /*ElevatedButton(
-                onPressed: _clear,
-                child: Text("Reset"),
-              ),*/
-            ]),
           ],
         ),
         bottomNavigationBar: Container(
