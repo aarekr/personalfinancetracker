@@ -142,6 +142,8 @@ class EntryScreen extends StatelessWidget {
 }
 
 class SummaryScreen extends StatelessWidget {
+  final expenseController = Get.find<ExpenseController>();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -150,8 +152,18 @@ class SummaryScreen extends StatelessWidget {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: Center(child: Text("Personal Finance Tracker")),
         ),
-        body: Center(
-          child: Text('Summary'),
+        body: Column(
+          children: [
+            Center(child: Text("Overview of expenses", style: TextStyle(height: 3, fontSize: 30))),
+            //Column(children: expenseController.expenseList.map((item) => Text(item['category'])).toList()),
+            //Column(children: expenseController.expenseList.map((item) => Text(item['expense'])).toList()),
+            Column(children: [
+              Row(children: [Text("Food"), Text("1")]),
+              Row(children: [Text("Drink"), Text("2")]),
+              Row(children: [Text("Clothes"), Text("3")]),
+              Row(children: [Text("Eating out"), Text("4")]),
+            ])  // var newExpense = {'expense': expense, 'category': category};
+          ],
         ),
         bottomNavigationBar: Container(
           height: 50,
